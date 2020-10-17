@@ -12,13 +12,15 @@ namespace apur_on
 	{
 		public GameWindowSettings GameWindowSettings;
 		public NativeWindowSettings NativeWindowSettings;
+		public Vector2i WindowSize;
 	}
 
 	class Engine : GameWindow
 	{
 		private Mesh TestMesh;
 		private Shader IZBShader;
-		private AssimpContext assimpContext = new AssimpContext();
+		private Camera DefaultCamera;
+		private AssimpContext AssimpContext = new AssimpContext();
 		
 		static void DebugCallback(DebugSource source, DebugType type, int id, DebugSeverity severity, int length, IntPtr message, IntPtr userParam)
 		{
@@ -66,13 +68,17 @@ namespace apur_on
 			GL.Enable(EnableCap.DebugOutputSynchronous);
 			GL.DebugMessageCallback(DebugCallback, IntPtr.Zero);
 
+			DefaultCamera = new Camera(settings.WindowSize.X, settings.WindowSize.Y, 0.01f, 100.0f);
+
 			IZBShader = new Shader("izbshadow");
+			IZBShader.SetMatrix4("view", DefaultCamera.View);
+			IZBShader.SetMatrix4("proj", DefaultCamera.Projection);
 		}
 
 		public void LoadScene(string name)
 		{
-			Scene scene = assimpContext.ImportFile("./res/models/" + name);
-			TestMesh = new Mesh(scene.Meshes[0]);
+			Scene scene = AssimpContext.ImportFile("./res/models/" + name, PostProcessSteps.Triangulate);
+			TestMesh = new Mesh(scene.Meshes[3]);
 		}
 
 		protected override void OnLoad()
@@ -116,6 +122,7 @@ namespace apur_on
 			{
 				TestMesh.Unassign();
 				IZBShader.Unassign();
+				AssimpContext.Dispose();
 			}
 
 			base.Dispose(disposing);
@@ -129,8 +136,9 @@ namespace apur_on
 			EngineSettings engineSettings;
 			engineSettings.GameWindowSettings = GameWindowSettings.Default;
 			engineSettings.NativeWindowSettings = NativeWindowSettings.Default;
-			engineSettings.NativeWindowSettings.Size = new Vector2i(1600, 800);
 			engineSettings.NativeWindowSettings.Flags |= ContextFlags.Debug;
+			engineSettings.NativeWindowSettings.Size =
+				engineSettings.WindowSize = new Vector2i(1600, 800);
 
 			using (Engine engine = new Engine(engineSettings))
 			{

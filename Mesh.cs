@@ -9,8 +9,10 @@ namespace apur_on
 	{
 		int Vao;
 		int Vbo;
+		int Ebo;
 
 		int vCount;
+		int iCount;
 
 		public Mesh(Assimp.Mesh mesh)
 		{
@@ -19,6 +21,11 @@ namespace apur_on
 			GL.BindVertexArray(Vao);
 			GL.EnableVertexAttribArray(0);
 			GL.EnableVertexAttribArray(1);
+
+			int[] indices = mesh.GetIndices();
+			GL.BindBuffer(BufferTarget.ElementArrayBuffer, Ebo);
+			GL.BufferData(BufferTarget.ElementArrayBuffer, sizeof(int) * indices.Length, indices, BufferUsageHint.StaticDraw);
+			iCount = indices.Length;
 
 			// positions + normals
 			float[] vertexData = new float[mesh.VertexCount * 6];
@@ -53,22 +60,25 @@ namespace apur_on
 		public void Draw()
 		{
 			GL.BindVertexArray(Vao);
-			GL.DrawArrays(PrimitiveType.Triangles, 0, vCount);
+			GL.DrawElements(PrimitiveType.Triangles, iCount, DrawElementsType.UnsignedInt, 0);
 		}
 
 		public void Assign()
 		{
 			Vao = GL.GenVertexArray();
 			Vbo = GL.GenBuffer();
+			Ebo = GL.GenBuffer();
 		}
 
 		public void Unassign()
 		{
 			GL.BindVertexArray(0);
-			GL.BindBuffer(BufferTarget.ArrayBuffer, Vbo);
+			GL.BindBuffer(BufferTarget.ArrayBuffer, 0);
+			GL.BindBuffer(BufferTarget.ElementArrayBuffer, 0);
 
 			GL.DeleteVertexArray(Vao);
 			GL.DeleteBuffer(Vbo);
+			GL.DeleteBuffer(Ebo);
 		}
 	}
 }

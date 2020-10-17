@@ -1,6 +1,7 @@
 using System;
 using System.IO;
 using OpenTK.Graphics.OpenGL;
+using OpenTK.Mathematics;
 
 namespace apur_on
 {
@@ -34,6 +35,14 @@ namespace apur_on
 		public void Use()
 		{
 			GL.UseProgram(Program);
+		}
+
+		public void SetMatrix4(string name, Matrix4 matrix)
+		{
+			Use();
+
+			int location = GL.GetUniformLocation(Program, name);
+			GL.UniformMatrix4(location, false, ref matrix);
 		}
 
 		public void Assign()
