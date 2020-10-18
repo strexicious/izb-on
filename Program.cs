@@ -5,6 +5,7 @@ using OpenTK.Graphics.OpenGL;
 using OpenTK.Mathematics;
 using OpenTK.Windowing.Common;
 using OpenTK.Windowing.Desktop;
+using OpenTK.Windowing.GraphicsLibraryFramework;
 
 namespace apur_on
 {
@@ -21,6 +22,8 @@ namespace apur_on
 		private Shader IZBShader;
 		private Camera DefaultCamera;
 		private AssimpContext AssimpContext = new AssimpContext();
+
+		private float CamSpeed = 0.1f;
 		
 		static void DebugCallback(DebugSource source, DebugType type, int id, DebugSeverity severity, int length, IntPtr message, IntPtr userParam)
 		{
@@ -90,7 +93,27 @@ namespace apur_on
 
 		protected override void OnUpdateFrame(FrameEventArgs args)
 		{
+			if (IsKeyDown(Keys.W))
+			{
+				DefaultCamera.Position += Vector3.Multiply(DefaultCamera.Direction, CamSpeed);
+				IZBShader.SetMatrix4("view", DefaultCamera.View);
+			}
+			
+			if (IsKeyDown(Keys.S))
+			{
+				DefaultCamera.Position -= Vector3.Multiply(DefaultCamera.Direction, CamSpeed);
+				IZBShader.SetMatrix4("view", DefaultCamera.View);
+			}
+			
 			base.OnUpdateFrame(args);
+		}
+
+		protected override void OnMouseMove(MouseMoveEventArgs e)
+		{
+			DefaultCamera.MoveDirection(e.DeltaX, e.DeltaY);
+			IZBShader.SetMatrix4("view", DefaultCamera.View);
+			
+			base.OnMouseMove(e);
 		}
 
 		protected override void OnRenderFrame(FrameEventArgs args)
