@@ -7,12 +7,12 @@ namespace apur_on
 {
 	class Mesh : GLResource
 	{
-		int Vao;
-		int Vbo;
-		int Ebo;
+		private int Vao;
+		private int Vbo;
+		private int Ebo;
 
-		int vCount;
-		int iCount;
+		private int vCount;
+		private int iCount;
 
 		public Mesh(Assimp.Mesh mesh)
 		{

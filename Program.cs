@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Runtime.InteropServices;
 using Assimp;
 using OpenTK.Graphics.OpenGL;
@@ -6,6 +7,7 @@ using OpenTK.Mathematics;
 using OpenTK.Windowing.Common;
 using OpenTK.Windowing.Desktop;
 using OpenTK.Windowing.GraphicsLibraryFramework;
+using IZBPipeline;
 
 namespace apur_on
 {
@@ -18,8 +20,8 @@ namespace apur_on
 
 	class Engine : GameWindow
 	{
-		private Mesh TestMesh;
-		private Shader IZBShader;
+		private List<Mesh> Scene = new List<Mesh>();
+		private IZBRenderer IZBRenderer;
 		private Camera DefaultCamera;
 		private AssimpContext AssimpContext = new AssimpContext();
 
@@ -71,22 +73,22 @@ namespace apur_on
 			GL.Enable(EnableCap.DebugOutputSynchronous);
 			GL.DebugMessageCallback(DebugCallback, IntPtr.Zero);
 
+			LoadScene("wide_monkey.obj");
 			DefaultCamera = new Camera(settings.WindowSize.X, settings.WindowSize.Y, 0.01f, 100.0f);
 
-			IZBShader = new Shader("izbshadow");
-			IZBShader.SetMatrix4("view", DefaultCamera.View);
-			IZBShader.SetMatrix4("proj", DefaultCamera.Projection);
+			IZBRenderer = new IZBRenderer(Scene, DefaultCamera);
 		}
 
 		public void LoadScene(string name)
 		{
 			Scene scene = AssimpContext.ImportFile("./res/models/" + name, PostProcessSteps.Triangulate);
-			TestMesh = new Mesh(scene.Meshes[3]);
+			scene.Meshes.ForEach(m => Scene.Add(new Mesh(m)));
 		}
 
 		protected override void OnLoad()
 		{
 			GL.ClearColor(0.2f, 0.3f, 0.3f, 1.0f);
+			GL.Enable(EnableCap.DepthTest);
 			
 			base.OnLoad();
 		}
@@ -96,13 +98,13 @@ namespace apur_on
 			if (IsKeyDown(Keys.W))
 			{
 				DefaultCamera.Position += Vector3.Multiply(DefaultCamera.Direction, CamSpeed);
-				IZBShader.SetMatrix4("view", DefaultCamera.View);
+				IZBRenderer.UpdateCam();
 			}
 			
 			if (IsKeyDown(Keys.S))
 			{
 				DefaultCamera.Position -= Vector3.Multiply(DefaultCamera.Direction, CamSpeed);
-				IZBShader.SetMatrix4("view", DefaultCamera.View);
+				IZBRenderer.UpdateCam();
 			}
 			
 			base.OnUpdateFrame(args);
@@ -111,7 +113,7 @@ namespace apur_on
 		protected override void OnMouseMove(MouseMoveEventArgs e)
 		{
 			DefaultCamera.MoveDirection(e.DeltaX, e.DeltaY);
-			IZBShader.SetMatrix4("view", DefaultCamera.View);
+				IZBRenderer.UpdateCam();
 			
 			base.OnMouseMove(e);
 		}
@@ -120,8 +122,7 @@ namespace apur_on
 		{
 			GL.Clear(ClearBufferMask.ColorBufferBit);
 
-			IZBShader.Use();
-			TestMesh.Draw();
+			IZBRenderer.Render();
 
 			SwapBuffers();
 			base.OnRenderFrame(args);
@@ -143,8 +144,8 @@ namespace apur_on
 			// are unmanaged, we can safely only access our fields if disposing = true
 			if (disposing)
 			{
-				TestMesh.Unassign();
-				IZBShader.Unassign();
+				Scene.ForEach(m => m.Unassign());
+				IZBRenderer.Unassign();
 				AssimpContext.Dispose();
 			}
 
@@ -165,7 +166,6 @@ namespace apur_on
 
 			using (Engine engine = new Engine(engineSettings))
 			{
-				engine.LoadScene("wide_monkey.obj");
 				engine.Run();
 			}
 		}

@@ -4,39 +4,39 @@ namespace apur_on
 {
 	class Camera
 	{
-		private float zNear;
-		private float zFar;
-		private float aspect;
-		private float fovy = MathHelper.PiOver2;
-		private float xangle = 0.0f;
-		private float yangle = 0.0f;
+		private float ZNear;
+		private float ZFar;
+		private float Fovy = MathHelper.PiOver2;
+		private float XAngle = 0.0f;
+		private float YAngle = 0.0f;
+		private float Aspect => (float)Width / Height;
+
+		public int Width;
+		public int Height;
 		
 		public Camera(int width, int height, float zNear, float zFar)
 		{
-			this.zNear = zNear;
-			this.zFar = zFar;
-			aspect = (float)width / height;
+			Width = width;
+			Height = height;
+			ZNear = zNear;
+			ZFar = zFar;
 		}
 
 		public void MoveDirection(float dx, float dy)
 		{
-			// TODO: right now dx and dy are inversed from OpenTK in 4.0.5,
-			// change this when it is fixed. for now we use this as a drop-in fix
-			// float dx = -dx;
-			// float dy = -dy;
 			float eightyRads = MathHelper.DegreesToRadians(80);
-			xangle = (xangle + MathHelper.DegreesToRadians(dx)) % MathHelper.TwoPi;
-			yangle = MathHelper.Max(
+			XAngle = (XAngle + MathHelper.DegreesToRadians(dx)) % MathHelper.TwoPi;
+			YAngle = MathHelper.Max(
 				MathHelper.Min(
-					yangle + MathHelper.DegreesToRadians(dy),
+					YAngle + MathHelper.DegreesToRadians(dy),
 					eightyRads),
 				-eightyRads
 			);
 
-			float cosx = (float) MathHelper.Cos(xangle);
-			float sinx = (float) MathHelper.Sin(xangle);
-			float cosy = (float) MathHelper.Cos(yangle);
-			float siny = (float) MathHelper.Sin(yangle);
+			float cosx = (float) MathHelper.Cos(XAngle);
+			float sinx = (float) MathHelper.Sin(XAngle);
+			float cosy = (float) MathHelper.Cos(YAngle);
+			float siny = (float) MathHelper.Sin(YAngle);
 			Direction = new Vector3(sinx * cosy, -siny, -cosx * cosy);
 		}
 
@@ -47,6 +47,6 @@ namespace apur_on
 			set => _direction = value.Normalized();
 		}
 		public Matrix4 View => Matrix4.LookAt(Position, Position+Direction, Vector3.UnitY);
-		public Matrix4 Projection => Matrix4.CreatePerspectiveFieldOfView(fovy, aspect, zNear, zFar);
+		public Matrix4 Projection => Matrix4.CreatePerspectiveFieldOfView(Fovy, Aspect, ZNear, ZFar);
 	}
 }

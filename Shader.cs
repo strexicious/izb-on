@@ -11,9 +11,9 @@ namespace apur_on
 	{
 		private const string BasePath = "./res/shaders/";
 		
-		string[] Source = new string[2];
+		private string[] Source = new string[2];
 
-		int Program;
+		private int Program;
 		
 		public Shader(string name)
 		{	
