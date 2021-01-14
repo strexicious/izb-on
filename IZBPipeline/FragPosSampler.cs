@@ -12,7 +12,7 @@ namespace IZBPipeline
 		private Shader SampleShader = new Shader("izbsample");
 		private Framebuffer SampleBuffer = new Framebuffer();
 		private Texture SampleImage;
-		private Renderbuffer SampleDepthStencilBuffer;
+		private Texture SampleDepthStencilBuffer;
 
 		public FragPosSampler(List<Mesh> scene, Camera defaultCam)
 		{
@@ -22,8 +22,8 @@ namespace IZBPipeline
 			SampleShader.SetMatrix4("view", DefaultCam.View);
 			SampleShader.SetMatrix4("proj", DefaultCam.Projection);
 
-			SampleDepthStencilBuffer = new Renderbuffer(RenderbufferStorage.Depth24Stencil8, DefaultCam.Width, DefaultCam.Height);
 			SampleImage = new ColorTexture2D(DefaultCam.Width, DefaultCam.Height);
+			SampleDepthStencilBuffer = new DepthStencilTexture(DefaultCam.Width, DefaultCam.Height);
 
 			SampleBuffer.Bind();
 			SampleImage.AttachToFramebuffer(FramebufferAttachment.ColorAttachment0);
@@ -38,13 +38,22 @@ namespace IZBPipeline
 
 		public void Render()
 		{
+			GL.Enable(EnableCap.StencilTest);
+
+			GL.StencilFunc(StencilFunction.Always, 1, 0xFF);
+			GL.StencilOp(StencilOp.Keep, StencilOp.Keep, StencilOp.Replace);
+			
 			SampleBuffer.Bind();
 			GL.Clear(ClearBufferMask.ColorBufferBit);
 			GL.Clear(ClearBufferMask.DepthBufferBit);
+			GL.Clear(ClearBufferMask.StencilBufferBit);
 			
 			SampleShader.Use();
 			Scene.ForEach(m => m.Draw());
+
 			Framebuffer.BindDefault();
+			
+			GL.Disable(EnableCap.StencilTest);
 		}
 
 		public void Assign() { }

@@ -44,4 +44,23 @@ namespace apur_on
 			GL.ClearTexImage(Txo, 0, PixelFormat.Rgba, PixelType.Float, IntPtr.Zero);
 		}
 	}
+
+	class DepthStencilTexture : Texture
+	{
+		public DepthStencilTexture(int width, int height) : base()
+		{
+			GL.BindTexture(TextureTarget.Texture2D, Txo);
+			GL.TexStorage2D(TextureTarget2d.Texture2D, 1, (SizedInternalFormat)All.Depth24Stencil8, width, height);
+		}
+
+		public override void AttachToFramebuffer(FramebufferAttachment attachment)
+		{
+			GL.FramebufferTexture2D(FramebufferTarget.Framebuffer, attachment, TextureTarget.Texture2D, Txo, 0);
+		}
+
+		public override void Clear()
+		{
+			GL.ClearTexImage(Txo, 0, PixelFormat.Rg, PixelType.Float, IntPtr.Zero);
+		}
+	}
 }

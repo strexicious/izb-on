@@ -39,22 +39,6 @@ namespace IZBPipeline
 
 		public void Render()
 		{
-			// GL.Enable(EnableCap.StencilTest);
-
-			// GL.StencilFunc(StencilFunction.Always, 1, 0xFF);
-			// GL.StencilOp(StencilOp.Keep, StencilOp.Keep, StencilOp.Replace);
-			
-			// SampleBuffer.Bind();
-			// GL.Clear(ClearBufferMask.ColorBufferBit);
-			// GL.Clear(ClearBufferMask.DepthBufferBit);
-			// GL.Clear(ClearBufferMask.StencilBufferBit);
-			
-			// SampleShader.Use();
-			// Scene.ForEach(m => m.Draw());
-			// Framebuffer.BindDefault();
-
-			// GL.Disable(EnableCap.StencilTest);
-
 			PosSampler.Render();
 		}
 
