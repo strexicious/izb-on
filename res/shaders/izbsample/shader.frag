@@ -2,8 +2,8 @@
 
 in vec3 f_position;
 
-layout(location = 0) out vec3 out_position;
+out vec3 world_pos;
 
 void main() {
-	out_position = f_position;
+	world_pos = f_position;
 }

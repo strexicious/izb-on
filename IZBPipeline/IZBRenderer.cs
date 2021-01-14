@@ -9,51 +9,60 @@ namespace IZBPipeline
 		private List<Mesh> Scene;
 		private Camera DefaultCam;
 
-		// first pass
-		Shader SampleShader = new Shader("izbsample");
-		Framebuffer SampleBuffer = new Framebuffer();
-		Renderbuffer SampleImage;
-		Renderbuffer AuxDepthBuffer;
+		private FragPosSampler PosSampler;
+
+		// number of bins and resolution to use during
+		// lightspace rendering
+		private int LSWidth = 10;
+		private int LSHeight = 10;
+
+		// lightspace tranform + building bins/lists
+		private Renderbuffer BinsBuffer; // indices to lists heads
+		private Renderbuffer BinsLists;
 
 		public IZBRenderer(List<Mesh> scene, Camera defaultCam)
 		{
 			Scene = scene;
 			DefaultCam = defaultCam;
 
-			SampleShader.SetMatrix4("view", DefaultCam.View);
-			SampleShader.SetMatrix4("proj", DefaultCam.Projection);
+			BinsBuffer = new Renderbuffer(RenderbufferStorage.R32ui, LSWidth, LSHeight);
+			// index into the SampleBuffer + index to next element in list
+			BinsLists = new Renderbuffer(RenderbufferStorage.Rg32ui, DefaultCam.Width, DefaultCam.Height);
 
-			AuxDepthBuffer = new Renderbuffer(RenderbufferStorage.DepthComponent32, DefaultCam.Width, DefaultCam.Height);
-
-			SampleImage = new Renderbuffer(RenderbufferStorage.Rgb32f, DefaultCam.Width, DefaultCam.Height);
-			SampleBuffer.Attach(SampleImage, FramebufferAttachment.ColorAttachment0);
-			SampleBuffer.Attach(AuxDepthBuffer, FramebufferAttachment.DepthAttachment);
+			PosSampler = new FragPosSampler(scene, defaultCam);
 		}
 
 		public void UpdateCam()
 		{
-			SampleShader.SetMatrix4("view", DefaultCam.View);
+			PosSampler.UpdateCam();
 		}
 
 		public void Render()
 		{
-			SampleBuffer.Bind();
-			GL.Clear(ClearBufferMask.ColorBufferBit);
-			GL.Clear(ClearBufferMask.DepthBufferBit);
+			// GL.Enable(EnableCap.StencilTest);
+
+			// GL.StencilFunc(StencilFunction.Always, 1, 0xFF);
+			// GL.StencilOp(StencilOp.Keep, StencilOp.Keep, StencilOp.Replace);
 			
-			SampleShader.Use();
-			Scene.ForEach(m => m.Draw());
-			Framebuffer.BindDefault();
+			// SampleBuffer.Bind();
+			// GL.Clear(ClearBufferMask.ColorBufferBit);
+			// GL.Clear(ClearBufferMask.DepthBufferBit);
+			// GL.Clear(ClearBufferMask.StencilBufferBit);
+			
+			// SampleShader.Use();
+			// Scene.ForEach(m => m.Draw());
+			// Framebuffer.BindDefault();
+
+			// GL.Disable(EnableCap.StencilTest);
+
+			PosSampler.Render();
 		}
 
 		public void Assign() { }
 
 		public void Unassign()
 		{
-			SampleShader.Unassign();
-			SampleBuffer.Unassign();
-			SampleImage.Unassign();
-			AuxDepthBuffer.Unassign();
+			PosSampler.Unassign();
 		}
 	}
 }

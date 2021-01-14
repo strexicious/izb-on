@@ -11,15 +11,6 @@ namespace apur_on
 		{
 			Assign();
 		}
-		
-		public void Attach(FramebufferAttacheable attacheable, FramebufferAttachment point)
-		{
-			GL.BindFramebuffer(FramebufferTarget.Framebuffer, Fbo);
-			attacheable.AttachToFramebuffer(attachment => 
-				GL.FramebufferRenderbuffer(FramebufferTarget.Framebuffer, point, RenderbufferTarget.Renderbuffer, attachment));
-
-			BindDefault();
-		}
 
 		public void Bind()
 		{
@@ -40,10 +31,5 @@ namespace apur_on
 		{
 			GL.DeleteFramebuffer(Fbo);
 		}
-	}
-
-	interface FramebufferAttacheable
-	{
-		void AttachToFramebuffer(Action<int> attacher);
 	}
 }

@@ -3,7 +3,7 @@ using OpenTK.Graphics.OpenGL;
 
 namespace apur_on
 {
-	class Renderbuffer : GLResource, FramebufferAttacheable
+	class Renderbuffer : GLResource
 	{
 		public int Rbo { get; private set; }
 
@@ -20,9 +20,9 @@ namespace apur_on
 			Rbo = GL.GenRenderbuffer();
 		}
 
-		public void AttachToFramebuffer(Action<int> attacher)
+		public void AttachToFramebuffer(FramebufferAttachment attachment)
 		{
-			attacher(Rbo);
+			GL.FramebufferRenderbuffer(FramebufferTarget.Framebuffer, attachment, RenderbufferTarget.Renderbuffer, Rbo);
 		}
 
 		public void Unassign()
