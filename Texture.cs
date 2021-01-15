@@ -7,6 +7,8 @@ namespace apur_on
 	{
 		protected int Txo;
 
+		public int TextureId { get => Txo; }
+
 		public Texture()
 		{
 			Assign();
@@ -24,6 +26,7 @@ namespace apur_on
 
 		public abstract void Clear();
 		public abstract void AttachToFramebuffer(FramebufferAttachment attachment);
+		public abstract SizedInternalFormat InternalFormat();
 	}
 
 	class ColorTexture2D : Texture
@@ -43,6 +46,11 @@ namespace apur_on
 		{
 			GL.ClearTexImage(Txo, 0, PixelFormat.Rgba, PixelType.Float, IntPtr.Zero);
 		}
+
+		public override SizedInternalFormat InternalFormat()
+		{
+			return SizedInternalFormat.Rgba32f;
+		}
 	}
 
 	class DepthStencilTexture : Texture
@@ -61,6 +69,11 @@ namespace apur_on
 		public override void Clear()
 		{
 			GL.ClearTexImage(Txo, 0, PixelFormat.Rg, PixelType.Float, IntPtr.Zero);
+		}
+
+		public override SizedInternalFormat InternalFormat()
+		{
+			return (SizedInternalFormat)All.Depth24Stencil8;
 		}
 	}
 }

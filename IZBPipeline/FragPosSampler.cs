@@ -11,8 +11,9 @@ namespace IZBPipeline
 
 		private Shader SampleShader = new Shader("izbsample");
 		private Framebuffer SampleBuffer = new Framebuffer();
-		private Texture SampleImage;
-		private Texture SampleDepthStencilBuffer;
+		
+		public ColorTexture2D SampleImage;
+		public DepthStencilTexture SampleDepthStencilBuffer;
 
 		public FragPosSampler(List<Mesh> scene, Camera defaultCam)
 		{
@@ -40,7 +41,7 @@ namespace IZBPipeline
 		{
 			GL.Enable(EnableCap.StencilTest);
 
-			GL.StencilFunc(StencilFunction.Always, 1, 0xFF);
+			GL.StencilFunc(StencilFunction.Always, 0x01, 0xFF);
 			GL.StencilOp(StencilOp.Keep, StencilOp.Keep, StencilOp.Replace);
 			
 			SampleBuffer.Bind();
