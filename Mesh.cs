@@ -14,9 +14,13 @@ namespace apur_on
 		private int vCount;
 		private int iCount;
 
+		public BoundingBox bbox;
+
 		public Mesh(Assimp.Mesh mesh)
 		{
 			Assign();
+
+			bbox = new BoundingBox(Vector3.PositiveInfinity, Vector3.NegativeInfinity);
 
 			GL.BindVertexArray(Vao);
 			GL.EnableVertexAttribArray(0);
@@ -34,6 +38,13 @@ namespace apur_on
 				vertexData[i * 6 + 0] = mesh.Vertices[i].X;
 				vertexData[i * 6 + 1] = mesh.Vertices[i].Y;
 				vertexData[i * 6 + 2] = mesh.Vertices[i].Z;
+
+				bbox.MinPoint.X = Math.Min(bbox.MinPoint.X, mesh.Vertices[i].X);
+				bbox.MinPoint.Y = Math.Min(bbox.MinPoint.Y, mesh.Vertices[i].Y);
+				bbox.MinPoint.Z = Math.Min(bbox.MinPoint.Z, mesh.Vertices[i].Z);
+				bbox.MaxPoint.X = Math.Max(bbox.MaxPoint.X, mesh.Vertices[i].X);
+				bbox.MaxPoint.Y = Math.Max(bbox.MaxPoint.Y, mesh.Vertices[i].Y);
+				bbox.MaxPoint.Z = Math.Max(bbox.MaxPoint.Z, mesh.Vertices[i].Z);
 
 				try
 				{
