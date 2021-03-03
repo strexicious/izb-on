@@ -76,4 +76,28 @@ namespace apur_on
 			return (SizedInternalFormat)All.Depth24Stencil8;
 		}
 	}
+
+	class UIntTexture : Texture
+	{
+		public UIntTexture(int width, int height) : base()
+		{
+			GL.BindTexture(TextureTarget.Texture2D, Txo);
+			GL.TexStorage2D(TextureTarget2d.Texture2D, 1, SizedInternalFormat.R32ui, width, height);
+		}
+
+		public override void AttachToFramebuffer(FramebufferAttachment attachment)
+		{
+			throw new NotImplementedException();
+		}
+
+		public override void Clear()
+		{
+			GL.ClearTexImage(Txo, 0, PixelFormat.Red, PixelType.UnsignedInt, IntPtr.Zero);
+		}
+
+		public override SizedInternalFormat InternalFormat()
+		{
+			return SizedInternalFormat.R32ui;
+		}
+	}
 }

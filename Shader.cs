@@ -143,6 +143,14 @@ namespace apur_on
 			GL.Uniform1(location, value);
 		}
 
+		public void SetMatrix4(string name, Matrix4 value)
+		{
+			Use();
+			
+			int location = GL.GetUniformLocation(Program, name);
+			GL.UniformMatrix4(location, false, ref value);
+		}
+
 		private void CheckLinkingErrors()
 		{
 			int status;

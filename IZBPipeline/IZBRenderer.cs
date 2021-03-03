@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using OpenTK.Mathematics;
 using OpenTK.Graphics.OpenGL;
 using apur_on;
 
@@ -8,28 +9,23 @@ namespace IZBPipeline
 	{
 		private List<Mesh> Scene;
 		private Camera DefaultCam;
+		private Vector3 LightDir;
 
 		private FragPosSampler PosSampler;
-
-		// number of bins and resolution to use during
-		// lightspace rendering
-		private int LSWidth = 10;
-		private int LSHeight = 10;
-
-		// lightspace tranform + building bins/lists
-		private Renderbuffer BinsBuffer; // indices to lists heads
-		private Renderbuffer BinsLists;
+		private LightSpaceTransformer LSTransformer;
+		private LightSpaceBinner Binner;
+		private ConservativeTester ConTester;
 
 		public IZBRenderer(List<Mesh> scene, Camera defaultCam)
 		{
 			Scene = scene;
 			DefaultCam = defaultCam;
-
-			BinsBuffer = new Renderbuffer(RenderbufferStorage.R32ui, LSWidth, LSHeight);
-			// index into the SampleBuffer + index to next element in list
-			BinsLists = new Renderbuffer(RenderbufferStorage.Rg32ui, DefaultCam.Width, DefaultCam.Height);
+			LightDir = new Vector3(-1, -1, -1).Normalized();
 
 			PosSampler = new FragPosSampler(scene, defaultCam);
+			LSTransformer = new LightSpaceTransformer(scene, PosSampler, LightDir);
+			Binner = new LightSpaceBinner(defaultCam.Width, defaultCam.Height);
+			// ConTester = new ConservativeTester(scene, Binner, PosSampler);
 		}
 
 		public void UpdateCam()
@@ -39,7 +35,14 @@ namespace IZBPipeline
 
 		public void Render()
 		{
+			GL.ActiveTexture(TextureUnit.Texture0);
+			GL.BindTexture(TextureTarget.Texture2D, PosSampler.SampleDepthStencilBuffer.TextureId);
 			PosSampler.Render();
+			LSTransformer.Dispatch();
+			GL.MemoryBarrier(MemoryBarrierFlags.ShaderImageAccessBarrierBit);
+			Binner.Dispatch();
+			GL.MemoryBarrier(MemoryBarrierFlags.ShaderImageAccessBarrierBit);
+			// ConTester.Render();
 		}
 
 		public void Assign() { }
@@ -47,6 +50,8 @@ namespace IZBPipeline
 		public void Unassign()
 		{
 			PosSampler.Unassign();
+			LSTransformer.Unassign();
+			Binner.Unassign();
 		}
 	}
 }
