@@ -15,6 +15,7 @@ namespace IZBPipeline
 		private LightSpaceTransformer LSTransformer;
 		private LightSpaceBinner Binner;
 		private ConservativeTester ConTester;
+		private FinalPass FinalPasser;
 
 		public IZBRenderer(List<Mesh> scene, Camera defaultCam)
 		{
@@ -25,7 +26,8 @@ namespace IZBPipeline
 			PosSampler = new FragPosSampler(scene, defaultCam);
 			LSTransformer = new LightSpaceTransformer(scene, PosSampler, LightDir);
 			Binner = new LightSpaceBinner(defaultCam.Width, defaultCam.Height);
-			// ConTester = new ConservativeTester(scene, Binner, PosSampler);
+			ConTester = new ConservativeTester(LSTransformer, defaultCam.Width, defaultCam.Height);
+			FinalPasser = new FinalPass(PosSampler);
 		}
 
 		public void UpdateCam()
@@ -42,7 +44,9 @@ namespace IZBPipeline
 			GL.MemoryBarrier(MemoryBarrierFlags.ShaderImageAccessBarrierBit);
 			Binner.Dispatch();
 			GL.MemoryBarrier(MemoryBarrierFlags.ShaderImageAccessBarrierBit);
-			// ConTester.Render();
+			ConTester.Dispatch(Scene);
+			GL.MemoryBarrier(MemoryBarrierFlags.ShaderImageAccessBarrierBit);
+			FinalPasser.Render();
 		}
 
 		public void Assign() { }

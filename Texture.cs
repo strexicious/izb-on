@@ -92,7 +92,7 @@ namespace apur_on
 
 		public override void Clear()
 		{
-			GL.ClearTexImage(Txo, 0, PixelFormat.Red, PixelType.UnsignedInt, IntPtr.Zero);
+			GL.ClearTexImage(Txo, 0, PixelFormat.RedInteger, PixelType.UnsignedInt, IntPtr.Zero);
 		}
 
 		public override SizedInternalFormat InternalFormat()

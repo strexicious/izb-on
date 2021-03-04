@@ -13,6 +13,7 @@ namespace IZBPipeline
 		private Framebuffer SampleBuffer = new Framebuffer();
 		
 		public ColorTexture2D SampleImage;
+		public ColorTexture2D ColorImage;
 		public DepthStencilTexture SampleDepthStencilBuffer;
 
 		public FragPosSampler(List<Mesh> scene, Camera defaultCam)
@@ -24,11 +25,16 @@ namespace IZBPipeline
 			SampleShader.SetMatrix4("proj", DefaultCam.Projection);
 
 			SampleImage = new ColorTexture2D(DefaultCam.Width, DefaultCam.Height);
+			ColorImage = new ColorTexture2D(DefaultCam.Width, DefaultCam.Height);
 			SampleDepthStencilBuffer = new DepthStencilTexture(DefaultCam.Width, DefaultCam.Height);
 
 			SampleBuffer.Bind();
 			SampleImage.AttachToFramebuffer(FramebufferAttachment.ColorAttachment0);
+			ColorImage.AttachToFramebuffer(FramebufferAttachment.ColorAttachment1);
 			SampleDepthStencilBuffer.AttachToFramebuffer(FramebufferAttachment.DepthStencilAttachment);
+
+			GL.DrawBuffers(2, new[]{ DrawBuffersEnum.ColorAttachment0, DrawBuffersEnum.ColorAttachment1 });
+			
 			Framebuffer.BindDefault();
 		}
 

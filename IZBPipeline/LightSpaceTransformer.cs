@@ -9,23 +9,22 @@ namespace IZBPipeline
 	class LightSpaceTransformer : GLResource
 	{
 		private ComputeShader TransformShader = new ComputeShader("toLightSpace");
+		private Matrix4 _lightTransform;
+		public Matrix4 LightTransform => _lightTransform;
 
 		public LightSpaceTransformer(List<Mesh> scene, FragPosSampler posSampler, Vector3 lightDir)
 		{
-			GL.BindImageTexture(0, posSampler.SampleImage.TextureId, 0, false, 0, TextureAccess.WriteOnly, posSampler.SampleImage.InternalFormat());
+			GL.BindImageTexture(0, posSampler.SampleImage.TextureId, 0, false, 0, TextureAccess.ReadWrite, posSampler.SampleImage.InternalFormat());
 
 			GL.ActiveTexture(TextureUnit.Texture0);
 			GL.BindTexture(TextureTarget.Texture2D, posSampler.SampleDepthStencilBuffer.TextureId);
 			GL.TextureParameter(posSampler.SampleDepthStencilBuffer.TextureId, TextureParameterName.DepthStencilTextureMode, (int)All.StencilIndex);
 
-			TransformShader.SetInt("pos_samples", 0);
-			TransformShader.SetInt("pos_mask", 0);
-
-			Matrix4 lightTransform = ComputeLightTransform(scene, lightDir);
-			TransformShader.SetMatrix4("lightTransform", lightTransform);
+			ComputeLightTransform(scene, lightDir);
+			TransformShader.SetMatrix4("lightTransform", _lightTransform);
 		}
 
-		private static Matrix4 ComputeLightTransform(List<Mesh> scene, Vector3 lightDir)
+		private void ComputeLightTransform(List<Mesh> scene, Vector3 lightDir)
 		{
 			BoundingBox sceneBbox = scene[0].bbox;
 
@@ -34,15 +33,14 @@ namespace IZBPipeline
 				sceneBbox.Merge(m.bbox);
 			}
 
-			float radius = (sceneBbox.MaxPoint - sceneBbox.MinPoint).Length;
-			var lightDirLeft = Vector3.Cross(new Vector3(0, 1, 0), lightDir);
-			var lightDirDown = Vector3.Cross(lightDirLeft, lightDir);
-			var newCenter = (lightDirLeft + lightDirDown) * radius + sceneBbox.Center();
+			float radius = (sceneBbox.MaxPoint - sceneBbox.MinPoint).Length / 2;
 			// This gets us light space translation and rotation
-			var spaceTransform = Matrix4.LookAt(newCenter - lightDir * radius, newCenter, new Vector3(0, 1, 0));
-			// but we can add few extra scaling and translation to prepare it for binning
-			var binTransform = spaceTransform * Matrix4.CreateScale(0.5f / radius);
-			return binTransform;
+			var lightRotation = Matrix4.LookAt(sceneBbox.Center(), sceneBbox.Center()+lightDir, new Vector3(0, 1, 0));
+			var sphereScale = Matrix4.CreateScale(1f/radius);
+			// For future, for some reason the matrices are "transponsed", column are rows?
+			// but the data is uploaded "correctly" on GPU. That is why the
+			// matrix composition is inverse but no need to explicitly transpose for uniforms
+			_lightTransform = lightRotation * sphereScale;
 		}
 
 		public void Dispatch()

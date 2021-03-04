@@ -9,8 +9,8 @@ namespace IZBPipeline
 
 		// number of bins and resolution to use during
 		// lightspace rendering
-		public const int LSWidth = 10;
-		public const int LSHeight = 10;
+		public const int LSWidth = 100;
+		public const int LSHeight = 100;
 
 		// lightspace tranform + building bins/lists
 		private UIntTexture _BinsHeads; // indices to lists heads
@@ -25,15 +25,14 @@ namespace IZBPipeline
 			GL.BindImageTexture(1, _BinsLists.TextureId, 0, false, 0, TextureAccess.ReadWrite, _BinsLists.InternalFormat());
 			GL.BindImageTexture(2, _BinsHeads.TextureId, 0, false, 0, TextureAccess.ReadWrite, _BinsHeads.InternalFormat());
 
-			BinShader.SetInt("pos_samples", 0);
-			BinShader.SetInt("lists", 1);
-			BinShader.SetInt("lists_heads", 2);
 			BinShader.SetInt("pos_mask", 0);
 		}
 
 		public void Dispatch()
 		{
 			BinShader.Use();
+			_BinsLists.Clear();
+			_BinsHeads.Clear();
 			GL.DispatchCompute(100, 50, 1);
 		}
 

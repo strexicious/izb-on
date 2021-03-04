@@ -10,8 +10,13 @@ namespace apur_on
 		private int Vbo;
 		private int Ebo;
 
+		public int VBO => Vbo;
+		public int EBO => Ebo;
+
 		private int vCount;
 		private int iCount;
+
+		public int TriangleCount => iCount / 3;
 
 		public BoundingBox bbox;
 
@@ -62,7 +67,7 @@ namespace apur_on
 			GL.BufferData(BufferTarget.ArrayBuffer, sizeof(float) * vertexData.Length, vertexData, BufferUsageHint.StaticDraw);
 
 			GL.VertexAttribPointer(0, 3, VertexAttribPointerType.Float, false, 24, new IntPtr(0));
-			GL.VertexAttribPointer(1, 3, VertexAttribPointerType.Float, false, 24, new IntPtr(0));
+			GL.VertexAttribPointer(1, 3, VertexAttribPointerType.Float, false, 24, new IntPtr(12));
 
 			vCount = mesh.VertexCount;
 		}
