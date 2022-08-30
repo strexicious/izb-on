@@ -1,4 +1,4 @@
-namespace apur_on
+namespace izb_on
 {
 	interface GLResource
 	{

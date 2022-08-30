@@ -1,4 +1,4 @@
-using apur_on;
+using izb_on;
 using OpenTK.Graphics.OpenGL;
 
 namespace IZBPipeline

@@ -3,7 +3,7 @@ using System.IO;
 using OpenTK.Graphics.OpenGL;
 using OpenTK.Mathematics;
 
-namespace apur_on
+namespace izb_on
 {
 	class ShaderException : Exception { }
 	

@@ -1,7 +1,7 @@
 using System;
 using OpenTK.Mathematics;
 
-namespace apur_on
+namespace izb_on
 {
 	struct BoundingBox
 	{

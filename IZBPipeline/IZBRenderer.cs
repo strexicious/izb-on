@@ -1,7 +1,7 @@
 using System.Collections.Generic;
 using OpenTK.Mathematics;
 using OpenTK.Graphics.OpenGL;
-using apur_on;
+using izb_on;
 
 namespace IZBPipeline
 {

@@ -1,7 +1,7 @@
 using System;
 using OpenTK.Graphics.OpenGL;
 
-namespace apur_on
+namespace izb_on
 {
 	class Renderbuffer : GLResource
 	{

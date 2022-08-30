@@ -1,6 +1,6 @@
 using System.Collections.Generic;
 using OpenTK.Graphics.OpenGL;
-using apur_on;
+using izb_on;
 
 namespace IZBPipeline
 {

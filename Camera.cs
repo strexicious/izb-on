@@ -1,6 +1,6 @@
 using OpenTK.Mathematics;
 
-namespace apur_on
+namespace izb_on
 {
 	class Camera
 	{

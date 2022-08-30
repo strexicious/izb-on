@@ -2,7 +2,7 @@ using System;
 using OpenTK.Mathematics;
 using OpenTK.Graphics.OpenGL;
 
-namespace apur_on
+namespace izb_on
 {
 	class Mesh : GLResource
 	{
