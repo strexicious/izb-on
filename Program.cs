@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Runtime.InteropServices;
+using System.Diagnostics;
 using Assimp;
 using OpenTK.Graphics.OpenGL;
 using OpenTK.Mathematics;
@@ -26,6 +27,9 @@ namespace apur_on
 		private AssimpContext AssimpContext = new AssimpContext();
 
 		private float CamSpeed = 0.1f;
+
+		private Stopwatch watch = Stopwatch.StartNew();
+		private int frames = 0;
 		
 		static void DebugCallback(DebugSource source, DebugType type, int id, DebugSeverity severity, int length, IntPtr message, IntPtr userParam)
 		{
@@ -73,8 +77,9 @@ namespace apur_on
 			GL.Enable(EnableCap.DebugOutputSynchronous);
 			GL.DebugMessageCallback(DebugCallback, IntPtr.Zero);
 
-			LoadScene("wide_monkey.obj");
+			LoadScene("outdoor_table_chair_set_01_4k.obj");
 			DefaultCamera = new Camera(settings.WindowSize.X, settings.WindowSize.Y, 0.01f, 100.0f);
+			DefaultCamera.Position = new Vector3(0, 10, 0);
 
 			IZBRenderer = new IZBRenderer(Scene, DefaultCamera);
 		}
@@ -122,7 +127,16 @@ namespace apur_on
 		{
 			GL.Clear(ClearBufferMask.ColorBufferBit);
 
+			if (watch.ElapsedMilliseconds > 1000) {
+				Console.WriteLine("Current fps: {0}", frames);
+				
+				frames = 0;
+				watch.Restart();
+			}
+
 			IZBRenderer.Render();
+			
+			frames++;
 
 			SwapBuffers();
 			base.OnRenderFrame(args);
